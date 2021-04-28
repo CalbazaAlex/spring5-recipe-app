@@ -2,6 +2,7 @@ package guru.springframework.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -18,6 +19,7 @@ public class Notes {
     private Long id;
 
     @OneToOne
+    @ToString.Exclude
     private Recipe recipe;
 
     @Lob
