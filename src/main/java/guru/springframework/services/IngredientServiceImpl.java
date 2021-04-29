@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by jt on 6/28/17.
@@ -39,7 +40,7 @@ public class IngredientServiceImpl implements IngredientService {
 
         Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
 
-        if (!recipeOptional.isPresent()){
+        if (!recipeOptional.isPresent()) {
             //todo impl error handling
             log.error("recipe id not found. Id: " + recipeId);
         }
@@ -48,9 +49,9 @@ public class IngredientServiceImpl implements IngredientService {
 
         Optional<IngredientCommand> ingredientCommandOptional = recipe.getIngredients().stream()
                 .filter(ingredient -> ingredient.getId().equals(ingredientId))
-                .map( ingredient -> ingredientToIngredientCommand.convert(ingredient)).findFirst();
+                .map(ingredient -> ingredientToIngredientCommand.convert(ingredient)).findFirst();
 
-        if(!ingredientCommandOptional.isPresent()){
+        if (!ingredientCommandOptional.isPresent()) {
             //todo impl error handling
             log.error("Ingredient id not found: " + ingredientId);
         }
@@ -63,7 +64,7 @@ public class IngredientServiceImpl implements IngredientService {
     public IngredientCommand saveIngredientCommand(IngredientCommand command) {
         Optional<Recipe> recipeOptional = recipeRepository.findById(command.getRecipeId());
 
-        if(!recipeOptional.isPresent()){
+        if (!recipeOptional.isPresent()) {
 
             //todo toss error if not found!
             log.error("Recipe not found for id: " + command.getRecipeId());
@@ -77,7 +78,7 @@ public class IngredientServiceImpl implements IngredientService {
                     .filter(ingredient -> ingredient.getId().equals(command.getId()))
                     .findFirst();
 
-            if(ingredientOptional.isPresent()){
+            if (ingredientOptional.isPresent()) {
                 Ingredient ingredientFound = ingredientOptional.get();
                 ingredientFound.setDescription(command.getDescription());
                 ingredientFound.setAmount(command.getAmount());
@@ -98,7 +99,7 @@ public class IngredientServiceImpl implements IngredientService {
                     .findFirst();
 
             //check by description
-            if(!savedIngredientOptional.isPresent()){
+            if (!savedIngredientOptional.isPresent()) {
                 //not totally safe... But best guess
                 savedIngredientOptional = savedRecipe.getIngredients().stream()
                         .filter(recipeIngredients -> recipeIngredients.getDescription().equals(command.getDescription()))
@@ -111,5 +112,37 @@ public class IngredientServiceImpl implements IngredientService {
             return ingredientToIngredientCommand.convert(savedIngredientOptional.get());
         }
 
+    }
+
+    @Override
+    public void deleteByRecipeIdAndIngredientId(Long recipeId, Long ingredientId) {
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
+        if (!optionalRecipe.isPresent()) {
+            log.error("Recipe not found for id: " + recipeId);
+        } else {
+            Recipe recipe = optionalRecipe.get();
+//            Optional<Ingredient> optionalIngredient = recipe.getIngredients()
+//                    .stream()
+//                    .filter(ingredient -> ingredient.getId().equals(ingredientId))
+//                    .findFirst();
+//
+//            if (optionalIngredient.isPresent()) {
+//                Ingredient ingredientToDelete = optionalIngredient.get();
+////                ingredientToDelete.setRecipe(null);
+//                recipe.getIngredients().remove(ingredientToDelete);
+//                recipeRepository.save(recipe);
+//            }
+
+            recipe.getIngredients().removeIf(ingredient ->{
+                if (ingredient.getId().equals(ingredientId)) {
+                    ingredient.setRecipe(null);
+                    ingredient.setDescription("CUM TARZAN STIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
+                    return true;
+                }
+                return false;
+            });
+            recipeRepository.save(recipe);
+
+        }
     }
 }

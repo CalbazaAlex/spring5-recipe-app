@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -30,6 +31,7 @@ public class IngredientServiceImplTest {
 
     @Mock
     UnitOfMeasureRepository unitOfMeasureRepository;
+
 
     IngredientService ingredientService;
 
@@ -107,5 +109,45 @@ public class IngredientServiceImplTest {
         verify(recipeRepository, times(1)).findById(anyLong());
         verify(recipeRepository, times(1)).save(any(Recipe.class));
 
+    }
+
+    @Test
+    public void testDeleteIngredientCommand() {
+        //given
+        IngredientCommand ingredientCommand = new IngredientCommand();
+        ingredientCommand.setId(1L);
+        ingredientCommand.setRecipeId(1L);
+
+        Ingredient ingredient1= new Ingredient();
+        ingredient1.setId(1L);
+
+        Ingredient ingredient2 = new Ingredient();
+        ingredient2.setId(2L);
+
+        Ingredient ingredient3 = new Ingredient();
+        ingredient3.setId(3L);
+
+        Recipe recipe = new Recipe();
+        recipe.setId(1L);
+
+        recipe.addIngredient(ingredient1);
+        recipe.addIngredient(ingredient2);
+        recipe.addIngredient(ingredient3);
+
+        Recipe recipeAfterDelete = new Recipe();
+        recipeAfterDelete.setId(1L);
+
+        recipeAfterDelete.addIngredient(ingredient2);
+        recipeAfterDelete.addIngredient(ingredient3);
+
+        //when
+        when(recipeRepository.findById(anyLong())).thenReturn(Optional.of(recipe));
+        when(recipeRepository.save(any(Recipe.class))).thenReturn(recipeAfterDelete);
+
+        //then
+        ingredientService.deleteByRecipeIdAndIngredientId(1L, 1L);
+
+        verify(recipeRepository, times(1)).findById(anyLong());
+        verify(recipeRepository, times(1)).save(any(Recipe.class));
     }
 }
