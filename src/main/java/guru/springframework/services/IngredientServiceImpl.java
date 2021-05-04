@@ -132,10 +132,9 @@ public class IngredientServiceImpl implements IngredientService {
 //                recipe.getIngredients().remove(ingredientToDelete);
 //                recipeRepository.save(recipe);
 //            }
-
             recipe.getIngredients().removeIf(ingredient ->{
                 if (ingredient.getId().equals(ingredientId)) {
-                    ingredient.setRecipe(null);
+//                    ingredient.setRecipe(null);
                     ingredient.setDescription("CUM TARZAN STIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
                     return true;
                 }
